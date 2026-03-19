@@ -1,4 +1,11 @@
 <clickhouse>
+  <default_profile>default</default_profile>
+  <profiles>
+    <default>
+      <join_use_nulls>1</join_use_nulls>
+      <distributed_product_mode>global</distributed_product_mode>
+    </default>
+  </profiles>
   <users>
     <cluster_user>
       <password>cluster_pass</password>
