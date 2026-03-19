@@ -15,17 +15,12 @@ services:
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server broker1:9092 --create --if-not-exists --topic iowait --partitions 1 --replication-factor 1
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server broker1:9092 --create --if-not-exists --topic aio_getevents --partitions 1 --replication-factor 1
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server broker1:9092 --create --if-not-exists --topic aio_submit --partitions 1 --replication-factor 1
-      /opt/kafka/bin/kafka-topics.sh --bootstrap-server broker1:9092 --create --if-not-exists --topic aio_staging --partitions 1 --replication-factor 1
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server broker1:9092 --create --if-not-exists --topic aio_file --partitions 1 --replication-factor 1
-      /opt/kafka/bin/kafka-topics.sh --bootstrap-server broker1:9092 --create --if-not-exists --topic upsert_pending --partitions 1 --replication-factor 1
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server broker1:9092 --create --if-not-exists --topic tcp_discovery --partitions 1 --replication-factor 1
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server broker1:9092 --create --if-not-exists --topic vfs --partitions 1 --replication-factor 1
-      /opt/kafka/bin/kafka-topics.sh --bootstrap-server broker1:9092 --create --if-not-exists --topic vfs_staging --partitions 1 --replication-factor 1
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server broker1:9092 --create --if-not-exists --topic futex_wait --partitions 1 --replication-factor 1
-      /opt/kafka/bin/kafka-topics.sh --bootstrap-server broker1:9092 --create --if-not-exists --topic futex_wait_staging --partitions 1 --replication-factor 1
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server broker1:9092 --create --if-not-exists --topic futex_wake --partitions 1 --replication-factor 1
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server broker1:9092 --create --if-not-exists --topic muxio_wait --partitions 1 --replication-factor 1
-      /opt/kafka/bin/kafka-topics.sh --bootstrap-server broker1:9092 --create --if-not-exists --topic muxio_staging --partitions 1 --replication-factor 1
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server broker1:9092 --create --if-not-exists --topic muxio_file --partitions 1 --replication-factor 1
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server broker1:9092 --create --if-not-exists --topic socket_context --partitions 1 --replication-factor 1
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server broker1:9092 --create --if-not-exists --topic socket_inet --partitions 1 --replication-factor 1
@@ -111,56 +106,6 @@ services:
     ports:
       - "19094:19092"
     restart: always
-
-
-  # .NET 10.0 producers
-  # producer1:
-  #   container_name: producer1
-  #   build: dotnetproducer
-  #   environment:
-  #     - KAFKA_BOOTSTRAP=broker1:9092
-  #     - PRODUCER_ID=1
-  #   depends_on:
-  #     - server1
-  #     - server2
-  #     - server3
-      
-  # producer2:
-  #   container_name: producer2
-  #   build: dotnetproducer
-  #   environment:
-  #     - KAFKA_BOOTSTRAP=broker1:9092
-  #     - PRODUCER_ID=2
-  #   depends_on:
-  #     - server1
-  #     - server2
-  #     - server3
-
-  # producer3:
-  #   container_name: producer3
-  #   build: dotnetproducer
-  #   environment:
-  #     - KAFKA_BOOTSTRAP=broker1:9092
-  #     - PRODUCER_ID=3
-  #   depends_on:
-  #     - server1
-  #     - server2
-  #     - server3
-
-
-  batchexecutioner:
-    build: ./batchexecutioner
-    container_name: batchexecutioner
-    hostname: batchexecutioner
-    depends_on:
-      - server1
-      - server2
-      - server3
-      - broker1
-      - broker2
-      - broker3
-    restart: on-failure
-
 
 
       # Clickhouse cluster

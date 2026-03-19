@@ -34,36 +34,6 @@ SETTINGS kafka_thread_per_consumer = 0, kafka_num_consumers = 1;
 CREATE MATERIALIZED VIEW default.aio_getevents_mv TO default.aio_getevents AS
 SELECT * FROM default.aio_getevents_queue;
 
--- ================ staging
-CREATE TABLE IF NOT EXISTS default.aio_staging_local
-(
-    machine_id      INTEGER,
-    ts_s            TIMESTAMP,
-    pid             INTEGER,
-    tid             INTEGER,
-    aioctx          BIGINT,
-    additional_time BIGINT
-) ENGINE = MergeTree
-PARTITION BY machine_id
-ORDER BY ts_s;
-
-CREATE TABLE IF NOT EXISTS default.aio_staging AS default.aio_staging_local
-ENGINE = Distributed(cluster_3s_1r, default, aio_staging_local, machine_id);
-
-CREATE TABLE IF NOT EXISTS default.aio_staging_queue
-(
-    machine_id      INTEGER,
-    ts_s            TIMESTAMP,
-    pid             INTEGER,
-    tid             INTEGER,
-    aioctx          BIGINT,
-    additional_time BIGINT
-) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'aio_staging', 'clickhouse_aio_staging', 'JSONEachRow')
-SETTINGS kafka_thread_per_consumer = 0, kafka_num_consumers = 1;
-
-CREATE MATERIALIZED VIEW default.aio_staging_mv TO default.aio_staging AS
-SELECT * FROM default.aio_staging_queue;
-
 -- ================ submit
 CREATE TABLE IF NOT EXISTS default.aio_submit_local
 (
@@ -213,41 +183,6 @@ SETTINGS kafka_thread_per_consumer = 0, kafka_num_consumers = 1;
 CREATE MATERIALIZED VIEW default.futex_wait_mv TO default.futex_wait AS
 SELECT * FROM default.futex_wait_queue;
 
-
--- ================ wait staging
-CREATE TABLE IF NOT EXISTS default.futex_wait_staging_local
-(
-    machine_id          INTEGER,
-    ts_s                TIMESTAMP,
-    pid                 INTEGER,
-    tid                 INTEGER,
-    futex_key_addr      BIGINT,
-    futex_key_word      BIGINT,
-    futex_key_offset    INTEGER,
-    additional_time     BIGINT
-) ENGINE = MergeTree
-PARTITION BY machine_id
-ORDER BY ts_s;
-
-CREATE TABLE IF NOT EXISTS default.futex_wait_staging AS default.futex_wait_staging_local
-ENGINE = Distributed(cluster_3s_1r, default, futex_wait_staging_local, machine_id);
-
-CREATE TABLE IF NOT EXISTS default.futex_wait_staging_queue
-(
-    machine_id          INTEGER,
-    ts_s                TIMESTAMP,
-    pid                 INTEGER,
-    tid                 INTEGER,
-    futex_key_addr      BIGINT,
-    futex_key_word      BIGINT,
-    futex_key_offset    INTEGER,
-    additional_time     BIGINT
-) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'futex_wait_staging', 'clickhouse_futex_wait_staging', 'JSONEachRow')
-SETTINGS kafka_thread_per_consumer = 0, kafka_num_consumers = 1;
-
-CREATE MATERIALIZED VIEW default.futex_wait_staging_mv TO default.futex_wait_staging AS
-SELECT * FROM default.futex_wait_staging_queue;
-
 -- ================ wake
 CREATE TABLE IF NOT EXISTS default.futex_wake_local
 (
@@ -365,38 +300,6 @@ SETTINGS kafka_thread_per_consumer = 0, kafka_num_consumers = 1;
 
 CREATE MATERIALIZED VIEW default.muxio_wait_mv TO default.muxio_wait AS
 SELECT * FROM default.muxio_wait_queue;
-
--- ================ staging
-CREATE TABLE IF NOT EXISTS default.muxio_staging_local
-(
-    machine_id      INTEGER,
-    ts_s            TIMESTAMP,
-    pid             INTEGER,
-    tid             INTEGER,
-    is_epoll        BOOLEAN,
-    poll_id         BIGINT,
-    additional_time BIGINT
-) ENGINE = MergeTree
-PARTITION BY machine_id
-ORDER BY ts_s;
-
-CREATE TABLE IF NOT EXISTS default.muxio_staging AS default.muxio_staging_local
-ENGINE = Distributed(cluster_3s_1r, default, muxio_staging_local, machine_id);
-
-CREATE TABLE IF NOT EXISTS default.muxio_staging_queue
-(
-    machine_id      INTEGER,
-    ts_s            TIMESTAMP,
-    pid             INTEGER,
-    tid             INTEGER,
-    is_epoll        BOOLEAN,
-    poll_id         BIGINT,
-    additional_time BIGINT
-) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'muxio_staging', 'clickhouse_muxio_staging', 'JSONEachRow')
-SETTINGS kafka_thread_per_consumer = 0, kafka_num_consumers = 1;
-
-CREATE MATERIALIZED VIEW default.muxio_staging_mv TO default.muxio_staging AS
-SELECT * FROM default.muxio_staging_queue;
 
 -- ================ file
 CREATE TABLE IF NOT EXISTS default.muxio_file_local
@@ -774,42 +677,6 @@ SETTINGS kafka_thread_per_consumer = 0, kafka_num_consumers = 1;
 
 CREATE MATERIALIZED VIEW default.vfs_mv TO default.vfs AS
 SELECT * FROM default.vfs_queue;
-
--- ================ staging
-CREATE TABLE IF NOT EXISTS default.vfs_staging_local
-(
-    machine_id      INTEGER,
-    ts_s            TIMESTAMP,
-    pid             INTEGER,
-    tid             INTEGER,
-    fs_magic        INTEGER,
-    device_id       INTEGER,
-    inode_id        BIGINT,
-    op              INTEGER,
-    additional_time BIGINT
-) ENGINE = MergeTree
-PARTITION BY machine_id
-ORDER BY ts_s;
-
-CREATE TABLE IF NOT EXISTS default.vfs_staging AS default.vfs_staging_local
-ENGINE = Distributed(cluster_3s_1r, default, vfs_staging_local, machine_id);
-
-CREATE TABLE IF NOT EXISTS default.vfs_staging_queue
-(
-    machine_id      INTEGER,
-    ts_s            TIMESTAMP,
-    pid             INTEGER,
-    tid             INTEGER,
-    fs_magic        INTEGER,
-    device_id       INTEGER,
-    inode_id        BIGINT,
-    op              INTEGER,
-    additional_time BIGINT
-) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'vfs_staging', 'clickhouse_vfs_staging', 'JSONEachRow')
-SETTINGS kafka_thread_per_consumer = 0, kafka_num_consumers = 1;
-
-CREATE MATERIALIZED VIEW default.vfs_staging_mv TO default.vfs_staging AS
-SELECT * FROM default.vfs_staging_queue;
 
 
 -- =============================================================
