@@ -6,7 +6,7 @@
 CREATE TABLE IF NOT EXISTS default.aio_getevents_local
 (
     machine_id      INTEGER,
-    ts_s            TIMESTAMP,
+    ts_s            DateTime(3),
     pid             INTEGER,
     tid             INTEGER,
     aioctx          BIGINT,
@@ -22,7 +22,7 @@ ENGINE = Distributed(cluster_3s_1r, default, aio_getevents_local, machine_id);
 CREATE TABLE IF NOT EXISTS default.aio_getevents_queue
 (
     machine_id      INTEGER,
-    ts_s            TIMESTAMP,
+    ts_s            DateTime(3),
     pid             INTEGER,
     tid             INTEGER,
     aioctx          BIGINT,
@@ -38,7 +38,7 @@ SELECT * FROM default.aio_getevents_queue;
 CREATE TABLE IF NOT EXISTS default.aio_submit_local
 (
     machine_id      INTEGER,
-    ts_s            TIMESTAMP,
+    ts_s            DateTime(3),
     pid             INTEGER,
     tid             INTEGER,
     aioctx          BIGINT,
@@ -53,7 +53,7 @@ ENGINE = Distributed(cluster_3s_1r, default, aio_submit_local, machine_id);
 CREATE TABLE IF NOT EXISTS default.aio_submit_queue
 (
     machine_id      INTEGER,
-    ts_s            TIMESTAMP,
+    ts_s            DateTime(3),
     pid             INTEGER,
     tid             INTEGER,
     aioctx          BIGINT,
@@ -68,7 +68,7 @@ SELECT * FROM default.aio_submit_queue;
 CREATE TABLE IF NOT EXISTS default.aio_file_local
 (
     machine_id  INTEGER,
-    ts_s        TIMESTAMP,
+    ts_s        DateTime(3),
     aioctx      BIGINT,
     isreg       INTEGER,
     fs_magic    INTEGER,
@@ -89,7 +89,7 @@ ENGINE = Distributed(cluster_3s_1r, default, aio_file_local, machine_id);
 CREATE TABLE IF NOT EXISTS default.aio_file_queue
 (
     machine_id  INTEGER,
-    ts_s        TIMESTAMP,
+    ts_s        DateTime(3),
     aioctx      BIGINT,
     isreg       INTEGER,
     fs_magic    INTEGER,
@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS default.tcp_discovery_local
     local_inode_id      BIGINT,
     remote_machine_id   INTEGER,
     remote_inode_id     BIGINT,
-    inserted_at         TIMESTAMP
+    inserted_at         DateTime(3)
 ) ENGINE = MergeTree
 PARTITION BY local_machine_id
 ORDER BY inserted_at;
@@ -131,7 +131,7 @@ CREATE TABLE IF NOT EXISTS default.tcp_discovery_queue
     local_inode_id      BIGINT,
     remote_machine_id   INTEGER,
     remote_inode_id     BIGINT,
-    inserted_at         TIMESTAMP
+    inserted_at         DateTime(3)
 ) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'tcp_discovery', 'clickhouse_tcp_discovery', 'JSONEachRow')
 SETTINGS kafka_thread_per_consumer = 0, kafka_num_consumers = 1;
 
@@ -147,7 +147,7 @@ SELECT * FROM default.tcp_discovery_queue;
 CREATE TABLE IF NOT EXISTS default.futex_wait_local
 (
     machine_id          INTEGER,
-    ts_s                TIMESTAMP,
+    ts_s                DateTime(3),
     pid                 INTEGER,
     tid                 INTEGER,
     futex_key_addr      BIGINT,
@@ -167,7 +167,7 @@ ENGINE = Distributed(cluster_3s_1r, default, futex_wait_local, machine_id);
 CREATE TABLE IF NOT EXISTS default.futex_wait_queue
 (
     machine_id          INTEGER,
-    ts_s                TIMESTAMP,
+    ts_s                DateTime(3),
     pid                 INTEGER,
     tid                 INTEGER,
     futex_key_addr      BIGINT,
@@ -187,7 +187,7 @@ SELECT * FROM default.futex_wait_queue;
 CREATE TABLE IF NOT EXISTS default.futex_wake_local
 (
     machine_id          INTEGER,
-    ts_s                TIMESTAMP,
+    ts_s                DateTime(3),
     pid                 INTEGER,
     tid                 INTEGER,
     futex_key_addr      BIGINT,
@@ -205,7 +205,7 @@ ENGINE = Distributed(cluster_3s_1r, default, futex_wake_local, machine_id);
 CREATE TABLE IF NOT EXISTS default.futex_wake_queue
 (
     machine_id          INTEGER,
-    ts_s                TIMESTAMP,
+    ts_s                DateTime(3),
     pid                 INTEGER,
     tid                 INTEGER,
     futex_key_addr      BIGINT,
@@ -226,7 +226,7 @@ SELECT * FROM default.futex_wake_queue;
 CREATE TABLE IF NOT EXISTS default.iowait_local
 (
     machine_id  INTEGER,
-    ts_s        TIMESTAMP,
+    ts_s        DateTime(3),
     pid         INTEGER,
     tid         INTEGER,
     part0       BIGINT,
@@ -246,7 +246,7 @@ ENGINE = Distributed(cluster_3s_1r, default, iowait_local, machine_id);
 CREATE TABLE IF NOT EXISTS default.iowait_queue
 (
     machine_id  INTEGER,
-    ts_s        TIMESTAMP,
+    ts_s        DateTime(3),
     pid         INTEGER,
     tid         INTEGER,
     part0       BIGINT,
@@ -271,7 +271,7 @@ SELECT * FROM default.iowait_queue;
 CREATE TABLE IF NOT EXISTS default.muxio_wait_local
 (
     machine_id      INTEGER,
-    ts_s            TIMESTAMP,
+    ts_s            DateTime(3),
     pid             INTEGER,
     tid             INTEGER,
     is_epoll        BOOLEAN,
@@ -288,7 +288,7 @@ ENGINE = Distributed(cluster_3s_1r, default, muxio_wait_local, machine_id);
 CREATE TABLE IF NOT EXISTS default.muxio_wait_queue
 (
     machine_id      INTEGER,
-    ts_s            TIMESTAMP,
+    ts_s            DateTime(3),
     pid             INTEGER,
     tid             INTEGER,
     is_epoll        BOOLEAN,
@@ -305,7 +305,7 @@ SELECT * FROM default.muxio_wait_queue;
 CREATE TABLE IF NOT EXISTS default.muxio_file_local
 (
     machine_id  INTEGER,
-    ts_s        TIMESTAMP,
+    ts_s        DateTime(3),
     poll_id     BIGINT,
     fs_magic    INTEGER,
     device_id   INTEGER,
@@ -324,7 +324,7 @@ ENGINE = Distributed(cluster_3s_1r, default, muxio_file_local, machine_id);
 CREATE TABLE IF NOT EXISTS default.muxio_file_queue
 (
     machine_id  INTEGER,
-    ts_s        TIMESTAMP,
+    ts_s        DateTime(3),
     poll_id     BIGINT,
     fs_magic    INTEGER,
     device_id   INTEGER,
@@ -531,7 +531,7 @@ SELECT * FROM default.k8s_queue;
 CREATE TABLE IF NOT EXISTS default.taskstats_local
 (
     machine_id      INTEGER,
-    ts              TIMESTAMP,
+    ts              DateTime(3),
     pid             INTEGER,
     tid             INTEGER,
     comm            VARCHAR,
@@ -559,7 +559,7 @@ ENGINE = Distributed(cluster_3s_1r, default, taskstats_local, machine_id);
 CREATE TABLE IF NOT EXISTS default.taskstats_queue
 (
     machine_id      INTEGER,
-    ts              TIMESTAMP,
+    ts              DateTime(3),
     pid             INTEGER,
     tid             INTEGER,
     comm            VARCHAR,
@@ -640,7 +640,7 @@ WHERE time_diff IS NOT NULL;
 CREATE TABLE IF NOT EXISTS default.vfs_local
 (
     machine_id  INTEGER,
-    ts_s        TIMESTAMP,
+    ts_s        DateTime(3),
     pid         INTEGER,
     tid         INTEGER,
     fs_magic    INTEGER,
@@ -661,7 +661,7 @@ ENGINE = Distributed(cluster_3s_1r, default, vfs_local, machine_id);
 CREATE TABLE IF NOT EXISTS default.vfs_queue
 (
     machine_id  INTEGER,
-    ts_s        TIMESTAMP,
+    ts_s        DateTime(3),
     pid         INTEGER,
     tid         INTEGER,
     fs_magic    INTEGER,
