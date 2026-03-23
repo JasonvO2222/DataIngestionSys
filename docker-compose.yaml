@@ -116,7 +116,7 @@ services:
     volumes:
       - ./clickhouse/config.d:/etc/clickhouse-server/config.d
       - ./clickhouse/users.d:/etc/clickhouse-server/users.d
-      #- ./data/server1:/var/lib/clickhouse
+      - ./data/server1:/var/lib/clickhouse
     ports:
       - "8123:8123"
       - "19000:9000"
@@ -132,7 +132,7 @@ services:
     volumes:
       - ./clickhouse/config.d:/etc/clickhouse-server/config.d
       - ./clickhouse/users.d:/etc/clickhouse-server/users.d
-      #- ./data/server2:/var/lib/clickhouse
+      - ./data/server2:/var/lib/clickhouse
     ports:
       - "8124:8123"
       - "19001:9000"
@@ -148,7 +148,7 @@ services:
     volumes:
       - ./clickhouse/config.d:/etc/clickhouse-server/config.d
       - ./clickhouse/users.d:/etc/clickhouse-server/users.d
-      #- ./data/server3:/var/lib/clickhouse
+      - ./data/server3:/var/lib/clickhouse
     ports:
       - "8125:8123"
       - "19002:9000"
