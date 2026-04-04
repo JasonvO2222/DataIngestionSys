@@ -5,13 +5,13 @@
 -- ================ getevents
 CREATE TABLE IF NOT EXISTS default.aio_getevents_local
 (
-    machine_id      INTEGER,
+    machine_id      UInt32,
     ts_s            DateTime(3),
-    pid             INTEGER,
-    tid             INTEGER,
-    aioctx          BIGINT,
-    total_time      BIGINT,
-    total_requests  BIGINT
+    pid             UInt32,
+    tid             UInt32,
+    aioctx          UInt64,
+    total_time      UInt64,
+    total_requests  UInt64
 ) ENGINE = MergeTree
 PARTITION BY machine_id
 ORDER BY ts_s;
@@ -21,14 +21,14 @@ ENGINE = Distributed(cluster_3s_1r, default, aio_getevents_local, machine_id);
 
 CREATE TABLE IF NOT EXISTS default.aio_getevents_queue
 (
-    machine_id      INTEGER,
+    machine_id      UInt32,
     ts_s            DateTime(3),
-    pid             INTEGER,
-    tid             INTEGER,
-    aioctx          BIGINT,
-    total_time      BIGINT,
-    total_requests  BIGINT
-) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'aio_getevents', 'clickhouse_aio_getevents', 'JSONEachRow')
+    pid             UInt32,
+    tid             UInt32,
+    aioctx          UInt64,
+    total_time      UInt64,
+    total_requests  UInt64
+) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'aio_getevents', 'clickhouse_aio_getevents', 'RowBinary')
 SETTINGS kafka_thread_per_consumer = 0, kafka_num_consumers = 1;
 
 CREATE MATERIALIZED VIEW default.aio_getevents_mv TO default.aio_getevents AS
@@ -37,12 +37,12 @@ SELECT * FROM default.aio_getevents_queue;
 -- ================ submit
 CREATE TABLE IF NOT EXISTS default.aio_submit_local
 (
-    machine_id      INTEGER,
+    machine_id      UInt32,
     ts_s            DateTime(3),
-    pid             INTEGER,
-    tid             INTEGER,
-    aioctx          BIGINT,
-    total_requests  BIGINT
+    pid             UInt32,
+    tid             UInt32,
+    aioctx          UInt64,
+    total_requests  UInt64
 ) ENGINE = MergeTree
 PARTITION BY machine_id
 ORDER BY ts_s;
@@ -52,13 +52,13 @@ ENGINE = Distributed(cluster_3s_1r, default, aio_submit_local, machine_id);
 
 CREATE TABLE IF NOT EXISTS default.aio_submit_queue
 (
-    machine_id      INTEGER,
+    machine_id      UInt32,
     ts_s            DateTime(3),
-    pid             INTEGER,
-    tid             INTEGER,
-    aioctx          BIGINT,
-    total_requests  BIGINT
-) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'aio_submit', 'clickhouse_aio_submit', 'JSONEachRow')
+    pid             UInt32,
+    tid             UInt32,
+    aioctx          UInt64,
+    total_requests  UInt64
+) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'aio_submit', 'clickhouse_aio_submit', 'RowBinary')
 SETTINGS kafka_thread_per_consumer = 0, kafka_num_consumers = 1;
 
 CREATE MATERIALIZED VIEW default.aio_submit_mv TO default.aio_submit AS
@@ -67,18 +67,18 @@ SELECT * FROM default.aio_submit_queue;
 -- ================ file
 CREATE TABLE IF NOT EXISTS default.aio_file_local
 (
-    machine_id  INTEGER,
+    machine_id  UInt32,
     ts_s        DateTime(3),
-    aioctx      BIGINT,
-    isreg       INTEGER,
-    fs_magic    INTEGER,
-    device_id   INTEGER,
-    inode_id    BIGINT,
-    part0       BIGINT,
-    bdev        BIGINT,
-    mode        INTEGER,
-    hist0 INTEGER, hist1 INTEGER, hist2 INTEGER, hist3 INTEGER,
-    hist4 INTEGER, hist5 INTEGER, hist6 INTEGER, hist7 INTEGER
+    aioctx      UInt64,
+    isreg       UInt8,
+    fs_magic    Nullable(UInt32),
+    device_id   Nullable(UInt32),
+    inode_id    Nullable(UInt64),
+    part0       Nullable(UInt64),
+    bdev        Nullable(UInt64),
+    mode        UInt8,
+    hist0 UInt32, hist1 UInt32, hist2 UInt32, hist3 UInt32,
+    hist4 UInt32, hist5 UInt32, hist6 UInt32, hist7 UInt32
 ) ENGINE = MergeTree
 PARTITION BY machine_id
 ORDER BY ts_s;
@@ -88,19 +88,19 @@ ENGINE = Distributed(cluster_3s_1r, default, aio_file_local, machine_id);
 
 CREATE TABLE IF NOT EXISTS default.aio_file_queue
 (
-    machine_id  INTEGER,
+    machine_id  UInt32,
     ts_s        DateTime(3),
-    aioctx      BIGINT,
-    isreg       INTEGER,
-    fs_magic    INTEGER,
-    device_id   INTEGER,
-    inode_id    BIGINT,
-    part0       BIGINT,
-    bdev        BIGINT,
-    mode        INTEGER,
-    hist0 INTEGER, hist1 INTEGER, hist2 INTEGER, hist3 INTEGER,
-    hist4 INTEGER, hist5 INTEGER, hist6 INTEGER, hist7 INTEGER
-) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'aio_file', 'clickhouse_aio_file', 'JSONEachRow')
+    aioctx      UInt64,
+    isreg       UInt8,
+    fs_magic    Nullable(UInt32),
+    device_id   Nullable(UInt32),
+    inode_id    Nullable(UInt64),
+    part0       Nullable(UInt64),
+    bdev        Nullable(UInt64),
+    mode        UInt8,
+    hist0 UInt32, hist1 UInt32, hist2 UInt32, hist3 UInt32,
+    hist4 UInt32, hist5 UInt32, hist6 UInt32, hist7 UInt32
+) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'aio_file', 'clickhouse_aio_file', 'RowBinary')
 SETTINGS kafka_thread_per_consumer = 0, kafka_num_consumers = 1;
 
 CREATE MATERIALIZED VIEW default.aio_file_mv TO default.aio_file AS
@@ -113,10 +113,10 @@ SELECT * FROM default.aio_file_queue;
 
 CREATE TABLE IF NOT EXISTS default.tcp_discovery_local
 (
-    local_machine_id    INTEGER,
-    local_inode_id      BIGINT,
-    remote_machine_id   INTEGER,
-    remote_inode_id     BIGINT,
+    local_machine_id    UInt32,
+    local_inode_id      UInt64,
+    remote_machine_id   UInt32,
+    remote_inode_id     UInt64,
     inserted_at         DateTime(3)
 ) ENGINE = MergeTree
 PARTITION BY local_machine_id
@@ -127,12 +127,12 @@ ENGINE = Distributed(cluster_3s_1r, default, tcp_discovery_local, local_machine_
 
 CREATE TABLE IF NOT EXISTS default.tcp_discovery_queue
 (
-    local_machine_id    INTEGER,
-    local_inode_id      BIGINT,
-    remote_machine_id   INTEGER,
-    remote_inode_id     BIGINT,
+    local_machine_id    UInt32,
+    local_inode_id      UInt64,
+    remote_machine_id   UInt32,
+    remote_inode_id     UInt64,
     inserted_at         DateTime(3)
-) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'tcp_discovery', 'clickhouse_tcp_discovery', 'JSONEachRow')
+) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'tcp_discovery', 'clickhouse_tcp_discovery', 'RowBinary')
 SETTINGS kafka_thread_per_consumer = 0, kafka_num_consumers = 1;
 
 CREATE MATERIALIZED VIEW default.tcp_discovery_mv TO default.tcp_discovery AS
@@ -146,17 +146,17 @@ SELECT * FROM default.tcp_discovery_queue;
 -- ================ wait
 CREATE TABLE IF NOT EXISTS default.futex_wait_local
 (
-    machine_id          INTEGER,
+    machine_id          UInt32,
     ts_s                DateTime(3),
-    pid                 INTEGER,
-    tid                 INTEGER,
-    futex_key_addr      BIGINT,
-    futex_key_word      BIGINT,
-    futex_key_offset    INTEGER,
-    total_requests      BIGINT,
-    total_time          BIGINT,
-    hist0 INTEGER, hist1 INTEGER, hist2 INTEGER, hist3 INTEGER,
-    hist4 INTEGER, hist5 INTEGER, hist6 INTEGER, hist7 INTEGER
+    pid                 UInt32,
+    tid                 UInt32,
+    futex_key_addr      UInt64,
+    futex_key_word      UInt64,
+    futex_key_offset    UInt32,
+    total_requests      UInt64,
+    total_time          UInt64,
+    hist0 UInt32, hist1 UInt32, hist2 UInt32, hist3 UInt32,
+    hist4 UInt32, hist5 UInt32, hist6 UInt32, hist7 UInt32
 ) ENGINE = MergeTree
 PARTITION BY machine_id
 ORDER BY ts_s;
@@ -166,18 +166,18 @@ ENGINE = Distributed(cluster_3s_1r, default, futex_wait_local, machine_id);
 
 CREATE TABLE IF NOT EXISTS default.futex_wait_queue
 (
-    machine_id          INTEGER,
+    machine_id          UInt32,
     ts_s                DateTime(3),
-    pid                 INTEGER,
-    tid                 INTEGER,
-    futex_key_addr      BIGINT,
-    futex_key_word      BIGINT,
-    futex_key_offset    INTEGER,
-    total_requests      BIGINT,
-    total_time          BIGINT,
-    hist0 INTEGER, hist1 INTEGER, hist2 INTEGER, hist3 INTEGER,
-    hist4 INTEGER, hist5 INTEGER, hist6 INTEGER, hist7 INTEGER
-) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'futex_wait', 'clickhouse_futex_wait', 'JSONEachRow')
+    pid                 UInt32,
+    tid                 UInt32,
+    futex_key_addr      UInt64,
+    futex_key_word      UInt64,
+    futex_key_offset    UInt32,
+    total_requests      UInt64,
+    total_time          UInt64,
+    hist0 UInt32, hist1 UInt32, hist2 UInt32, hist3 UInt32,
+    hist4 UInt32, hist5 UInt32, hist6 UInt32, hist7 UInt32
+) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'futex_wait', 'clickhouse_futex_wait', 'RowBinary')
 SETTINGS kafka_thread_per_consumer = 0, kafka_num_consumers = 1;
 
 CREATE MATERIALIZED VIEW default.futex_wait_mv TO default.futex_wait AS
@@ -186,15 +186,15 @@ SELECT * FROM default.futex_wait_queue;
 -- ================ wake
 CREATE TABLE IF NOT EXISTS default.futex_wake_local
 (
-    machine_id          INTEGER,
+    machine_id          UInt32,
     ts_s                DateTime(3),
-    pid                 INTEGER,
-    tid                 INTEGER,
-    futex_key_addr      BIGINT,
-    futex_key_word      BIGINT,
-    futex_key_offset    INTEGER,
-    total_requests      BIGINT,
-    successful_count    BIGINT
+    pid                 UInt32,
+    tid                 UInt32,
+    futex_key_addr      UInt64,
+    futex_key_word      UInt64,
+    futex_key_offset    UInt32,
+    total_requests      UInt64,
+    successful_count    UInt64
 ) ENGINE = MergeTree
 PARTITION BY machine_id
 ORDER BY ts_s;
@@ -204,16 +204,16 @@ ENGINE = Distributed(cluster_3s_1r, default, futex_wake_local, machine_id);
 
 CREATE TABLE IF NOT EXISTS default.futex_wake_queue
 (
-    machine_id          INTEGER,
+    machine_id          UInt32,
     ts_s                DateTime(3),
-    pid                 INTEGER,
-    tid                 INTEGER,
-    futex_key_addr      BIGINT,
-    futex_key_word      BIGINT,
-    futex_key_offset    INTEGER,
-    total_requests      BIGINT,
-    successful_count    BIGINT
-) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'futex_wake', 'clickhouse_futex_wake', 'JSONEachRow')
+    pid                 UInt32,
+    tid                 UInt32,
+    futex_key_addr      UInt64,
+    futex_key_word      UInt64,
+    futex_key_offset    UInt32,
+    total_requests      UInt64,
+    successful_count    UInt64
+) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'futex_wake', 'clickhouse_futex_wake', 'RowBinary')
 SETTINGS kafka_thread_per_consumer = 0, kafka_num_consumers = 1;
 
 CREATE MATERIALIZED VIEW default.futex_wake_mv TO default.futex_wake AS
@@ -225,17 +225,17 @@ SELECT * FROM default.futex_wake_queue;
 -- =============================================================
 CREATE TABLE IF NOT EXISTS default.iowait_local
 (
-    machine_id  INTEGER,
+    machine_id  UInt32,
     ts_s        DateTime(3),
-    pid         INTEGER,
-    tid         INTEGER,
-    part0       BIGINT,
-    bdev        BIGINT,
-    total_time  BIGINT,
-    sector_cnt  INTEGER,
-    total_requests INTEGER,
-    hist0 INTEGER, hist1 INTEGER, hist2 INTEGER, hist3 INTEGER,
-    hist4 INTEGER, hist5 INTEGER, hist6 INTEGER, hist7 INTEGER
+    pid         UInt32,
+    tid         UInt32,
+    part0       UInt64,
+    bdev        UInt64,
+    total_time  UInt64,
+    sector_cnt  UInt32,
+    total_requests UInt32,
+    hist0 UInt32, hist1 UInt32, hist2 UInt32, hist3 UInt32,
+    hist4 UInt32, hist5 UInt32, hist6 UInt32, hist7 UInt32
 ) ENGINE = MergeTree
 PARTITION BY machine_id
 ORDER BY ts_s;
@@ -245,18 +245,18 @@ ENGINE = Distributed(cluster_3s_1r, default, iowait_local, machine_id);
 
 CREATE TABLE IF NOT EXISTS default.iowait_queue
 (
-    machine_id  INTEGER,
+    machine_id  UInt32,
     ts_s        DateTime(3),
-    pid         INTEGER,
-    tid         INTEGER,
-    part0       BIGINT,
-    bdev        BIGINT,
-    total_time  BIGINT,
-    sector_cnt  INTEGER,
-    total_requests INTEGER,
-    hist0 INTEGER, hist1 INTEGER, hist2 INTEGER, hist3 INTEGER,
-    hist4 INTEGER, hist5 INTEGER, hist6 INTEGER, hist7 INTEGER
-) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'iowait', 'clickhouse_iowait', 'JSONEachRow')
+    pid         UInt32,
+    tid         UInt32,
+    part0       UInt64,
+    bdev        UInt64,
+    total_time  UInt64,
+    sector_cnt  UInt32,
+    total_requests UInt32,
+    hist0 UInt32, hist1 UInt32, hist2 UInt32, hist3 UInt32,
+    hist4 UInt32, hist5 UInt32, hist6 UInt32, hist7 UInt32
+) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'iowait', 'clickhouse_iowait', 'RowBinary')
 SETTINGS kafka_thread_per_consumer = 0, kafka_num_consumers = 1;
 
 CREATE MATERIALIZED VIEW default.iowait_mv TO default.iowait AS
@@ -270,14 +270,14 @@ SELECT * FROM default.iowait_queue;
 -- ================ wait
 CREATE TABLE IF NOT EXISTS default.muxio_wait_local
 (
-    machine_id      INTEGER,
+    machine_id      UInt32,
     ts_s            DateTime(3),
-    pid             INTEGER,
-    tid             INTEGER,
+    pid             UInt32,
+    tid             UInt32,
     is_epoll        BOOLEAN,
-    poll_id         BIGINT,
-    total_time      BIGINT,
-    total_requests  BIGINT
+    poll_id         UInt64,
+    total_time      UInt64,
+    total_requests  UInt64
 ) ENGINE = MergeTree
 PARTITION BY machine_id
 ORDER BY ts_s;
@@ -287,15 +287,15 @@ ENGINE = Distributed(cluster_3s_1r, default, muxio_wait_local, machine_id);
 
 CREATE TABLE IF NOT EXISTS default.muxio_wait_queue
 (
-    machine_id      INTEGER,
+    machine_id      UInt32,
     ts_s            DateTime(3),
-    pid             INTEGER,
-    tid             INTEGER,
+    pid             UInt32,
+    tid             UInt32,
     is_epoll        BOOLEAN,
-    poll_id         BIGINT,
-    total_time      BIGINT,
-    total_requests  BIGINT
-) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'muxio_wait', 'clickhouse_muxio_wait', 'JSONEachRow')
+    poll_id         UInt64,
+    total_time      UInt64,
+    total_requests  UInt64
+) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'muxio_wait', 'clickhouse_muxio_wait', 'RowBinary')
 SETTINGS kafka_thread_per_consumer = 0, kafka_num_consumers = 1;
 
 CREATE MATERIALIZED VIEW default.muxio_wait_mv TO default.muxio_wait AS
@@ -304,16 +304,15 @@ SELECT * FROM default.muxio_wait_queue;
 -- ================ file
 CREATE TABLE IF NOT EXISTS default.muxio_file_local
 (
-    machine_id  INTEGER,
+    machine_id  UInt32,
     ts_s        DateTime(3),
-    poll_id     BIGINT,
-    fs_magic    INTEGER,
-    device_id   INTEGER,
-    inode_id    BIGINT,
-    mode        INTEGER,
-    hist0 INTEGER, hist1 INTEGER, hist2 INTEGER, hist3 INTEGER,
-    hist4 INTEGER, hist5 INTEGER, hist6 INTEGER, hist7 INTEGER
-
+    poll_id     UInt64,
+    fs_magic    UInt32,
+    device_id   UInt32,
+    inode_id    UInt64,
+    mode        UInt8,
+    hist0 UInt32, hist1 UInt32, hist2 UInt32, hist3 UInt32,
+    hist4 UInt32, hist5 UInt32, hist6 UInt32, hist7 UInt32
 ) ENGINE = MergeTree
 PARTITION BY machine_id
 ORDER BY ts_s;
@@ -323,16 +322,16 @@ ENGINE = Distributed(cluster_3s_1r, default, muxio_file_local, machine_id);
 
 CREATE TABLE IF NOT EXISTS default.muxio_file_queue
 (
-    machine_id  INTEGER,
+    machine_id  UInt32,
     ts_s        DateTime(3),
-    poll_id     BIGINT,
-    fs_magic    INTEGER,
-    device_id   INTEGER,
-    inode_id    BIGINT,
-    mode        INTEGER,
-    hist0 INTEGER, hist1 INTEGER, hist2 INTEGER, hist3 INTEGER,
-    hist4 INTEGER, hist5 INTEGER, hist6 INTEGER, hist7 INTEGER
-) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'muxio_file', 'clickhouse_muxio_file', 'JSONEachRow')
+    poll_id     UInt64,
+    fs_magic    UInt32,
+    device_id   UInt32,
+    inode_id    UInt64,
+    mode        UInt8,
+    hist0 UInt32, hist1 UInt32, hist2 UInt32, hist3 UInt32,
+    hist4 UInt32, hist5 UInt32, hist6 UInt32, hist7 UInt32
+) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'muxio_file', 'clickhouse_muxio_file', 'RowBinary')
 SETTINGS kafka_thread_per_consumer = 0, kafka_num_consumers = 1;
 
 CREATE MATERIALIZED VIEW default.muxio_file_mv TO default.muxio_file AS
@@ -346,11 +345,11 @@ SELECT * FROM default.muxio_file_queue;
 -- ================ socket context
 CREATE TABLE IF NOT EXISTS default.socket_context_local
 (
-    machine_id  INTEGER,
-    inode_id    BIGINT,
-    family      INTEGER,
-    type        INTEGER,
-    protocol    INTEGER
+    machine_id  UInt32,
+    inode_id    UInt64,
+    family      UInt16,
+    type        UInt16,
+    protocol    UInt16
 ) ENGINE = MergeTree
 PARTITION BY machine_id
 ORDER BY inode_id;
@@ -360,12 +359,12 @@ ENGINE = Distributed(cluster_3s_1r, default, socket_context_local, machine_id);
 
 CREATE TABLE IF NOT EXISTS default.socket_context_queue
 (
-    machine_id  INTEGER,
-    inode_id    BIGINT,
-    family      INTEGER,
-    type        INTEGER,
-    protocol    INTEGER
-) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'socket_context', 'clickhouse_socket_context', 'JSONEachRow')
+    machine_id  UInt32,
+    inode_id    UInt64,
+    family      UInt16,
+    type        UInt16,
+    protocol    UInt16
+) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'socket_context', 'clickhouse_socket_context', 'RowBinary')
 SETTINGS kafka_thread_per_consumer = 0, kafka_num_consumers = 1;
 
 CREATE MATERIALIZED VIEW default.socket_context_mv TO default.socket_context AS
@@ -374,13 +373,13 @@ SELECT * FROM default.socket_context_queue;
 -- ================ socket inet
 CREATE TABLE IF NOT EXISTS default.socket_inet_local
 (
-    machine_id      INTEGER,
-    inode_id        BIGINT,
-    netns_cookie    BIGINT,
+    machine_id      UInt32,
+    inode_id        UInt64,
+    netns_cookie    UInt64,
     src_address     VARCHAR,
-    src_port        INTEGER,
+    src_port        UInt16,
     dst_address     VARCHAR,
-    dst_port        INTEGER
+    dst_port        UInt16
 ) ENGINE = MergeTree
 PARTITION BY machine_id
 ORDER BY inode_id;
@@ -390,14 +389,14 @@ ENGINE = Distributed(cluster_3s_1r, default, socket_inet_local, machine_id);
 
 CREATE TABLE IF NOT EXISTS default.socket_inet_queue
 (
-    machine_id      INTEGER,
-    inode_id        BIGINT,
-    netns_cookie    BIGINT,
+    machine_id      UInt32,
+    inode_id        UInt64,
+    netns_cookie    UInt64,
     src_address     VARCHAR,
-    src_port        INTEGER,
+    src_port        UInt16,
     dst_address     VARCHAR,
-    dst_port        INTEGER
-) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'socket_inet', 'clickhouse_socket_inet', 'JSONEachRow')
+    dst_port        UInt16
+) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'socket_inet', 'clickhouse_socket_inet', 'RowBinary')
 SETTINGS kafka_thread_per_consumer = 0, kafka_num_consumers = 1;
 
 CREATE MATERIALIZED VIEW default.socket_inet_mv TO default.socket_inet AS
@@ -406,9 +405,9 @@ SELECT * FROM default.socket_inet_queue;
 -- ================ socket map
 CREATE TABLE IF NOT EXISTS default.socket_map_local
 (
-    machine_id      INTEGER,
-    sock1_inode_id  BIGINT,
-    sock2_inode_id  BIGINT
+    machine_id      UInt32,
+    sock1_inode_id  UInt64,
+    sock2_inode_id  UInt64
 ) ENGINE = MergeTree
 PARTITION BY machine_id
 ORDER BY sock1_inode_id;
@@ -418,10 +417,10 @@ ENGINE = Distributed(cluster_3s_1r, default, socket_map_local, machine_id);
 
 CREATE TABLE IF NOT EXISTS default.socket_map_queue
 (
-    machine_id      INTEGER,
-    sock1_inode_id  BIGINT,
-    sock2_inode_id  BIGINT
-) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'socket_map', 'clickhouse_socket_map', 'JSONEachRow')
+    machine_id      UInt32,
+    sock1_inode_id  UInt64,
+    sock2_inode_id  UInt64
+) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'socket_map', 'clickhouse_socket_map', 'RowBinary')
 SETTINGS kafka_thread_per_consumer = 0, kafka_num_consumers = 1;
 
 CREATE MATERIALIZED VIEW default.socket_map_mv TO default.socket_map AS
@@ -435,11 +434,11 @@ SELECT * FROM default.socket_map_queue;
 -- ================ process context
 CREATE TABLE IF NOT EXISTS default.process_context_local
 (
-    machine_id  INTEGER,
-    pid         INTEGER,
-    cgroup      VARCHAR,
+    machine_id  UInt32,
+    pid         UInt32,
+    cgroup      Nullable(VARCHAR),
     argv        VARCHAR,
-    exe         VARCHAR
+    exe         Nullable(VARCHAR)
 ) ENGINE = MergeTree
 PARTITION BY machine_id
 ORDER BY pid;
@@ -449,12 +448,12 @@ ENGINE = Distributed(cluster_3s_1r, default, process_context_local, machine_id);
 
 CREATE TABLE IF NOT EXISTS default.process_context_queue
 (
-    machine_id  INTEGER,
-    pid         INTEGER,
-    cgroup      VARCHAR,
+    machine_id  UInt32,
+    pid         UInt32,
+    cgroup      Nullable(VARCHAR),
     argv        VARCHAR,
-    exe         VARCHAR
-) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'process_context', 'clickhouse_process_context', 'JSONEachRow')
+    exe         Nullable(VARCHAR)
+) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'process_context', 'clickhouse_process_context', 'RowBinary')
 SETTINGS kafka_thread_per_consumer = 0, kafka_num_consumers = 1;
 
 CREATE MATERIALIZED VIEW default.process_context_mv TO default.process_context AS
@@ -463,12 +462,12 @@ SELECT * FROM default.process_context_queue;
 -- ================ docker
 CREATE TABLE IF NOT EXISTS default.docker_local
 (
-    machine_id  INTEGER,
+    machine_id  UInt32,
     cgroup      VARCHAR,
     id          VARCHAR,
-    name        VARCHAR,
-    image_name  VARCHAR,
-    image_hash  VARCHAR
+    name        Nullable(VARCHAR),
+    image_name  Nullable(VARCHAR),
+    image_hash  Nullable(VARCHAR)
 ) ENGINE = MergeTree
 PARTITION BY machine_id
 ORDER BY id;
@@ -478,13 +477,13 @@ ENGINE = Distributed(cluster_3s_1r, default, docker_local, machine_id);
 
 CREATE TABLE IF NOT EXISTS default.docker_queue
 (
-    machine_id  INTEGER,
+    machine_id  UInt32,
     cgroup      VARCHAR,
     id          VARCHAR,
-    name        VARCHAR,
-    image_name  VARCHAR,
-    image_hash  VARCHAR
-) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'docker', 'clickhouse_docker', 'JSONEachRow')
+    name        Nullable(VARCHAR),
+    image_name  Nullable(VARCHAR),
+    image_hash  Nullable(VARCHAR)
+) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'docker', 'clickhouse_docker', 'RowBinary')
 SETTINGS kafka_thread_per_consumer = 0, kafka_num_consumers = 1;
 
 CREATE MATERIALIZED VIEW default.docker_mv TO default.docker AS
@@ -493,12 +492,12 @@ SELECT * FROM default.docker_queue;
 -- ================ k8s
 CREATE TABLE IF NOT EXISTS default.k8s_local
 (
-    machine_id      INTEGER,
+    machine_id      UInt32,
     cgroup          VARCHAR,
     id              VARCHAR,
-    namespace       VARCHAR,
-    pod_name        VARCHAR,
-    container_name  VARCHAR,
+    namespace       Nullable(VARCHAR),
+    pod_name        Nullable(VARCHAR),
+    container_name  Nullable(VARCHAR),
     image_name      VARCHAR
 ) ENGINE = MergeTree
 PARTITION BY machine_id
@@ -509,14 +508,14 @@ ENGINE = Distributed(cluster_3s_1r, default, k8s_local, machine_id);
 
 CREATE TABLE IF NOT EXISTS default.k8s_queue
 (
-    machine_id      INTEGER,
+    machine_id      UInt32,
     cgroup          VARCHAR,
     id              VARCHAR,
-    namespace       VARCHAR,
-    pod_name        VARCHAR,
-    container_name  VARCHAR,
+    namespace       Nullable(VARCHAR),
+    pod_name        Nullable(VARCHAR),
+    container_name  Nullable(VARCHAR),
     image_name      VARCHAR
-) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'k8s', 'clickhouse_k8s', 'JSONEachRow')
+) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'k8s', 'clickhouse_k8s', 'RowBinary')
 SETTINGS kafka_thread_per_consumer = 0, kafka_num_consumers = 1;
 
 CREATE MATERIALIZED VIEW default.k8s_mv TO default.k8s AS
@@ -530,25 +529,25 @@ SELECT * FROM default.k8s_queue;
 -- ================ taskstats
 CREATE TABLE IF NOT EXISTS default.taskstats_local
 (
-    machine_id      INTEGER,
+    machine_id      UInt32,
     ts              DateTime(3),
-    pid             INTEGER,
-    tid             INTEGER,
+    pid             UInt32,
+    tid             UInt32,
     comm            VARCHAR,
-    nvcsw           BIGINT,
-    nivcsw          BIGINT,
-    run_time_total  BIGINT,
-    rq_time_total   BIGINT,
-    rq_count        BIGINT,
-    blkio_time_total        BIGINT,
-    blkio_count             BIGINT,
-    uninterruptible_total   BIGINT,
-    freepages_time_total    BIGINT,
-    freepages_count         BIGINT,
-    thrashing_time_total    BIGINT,
-    thrashing_count         BIGINT,
-    swapin_time_total       BIGINT,
-    swapin_count            BIGINT
+    nvcsw           UInt64,
+    nivcsw          UInt64,
+    run_time_total  UInt64,
+    rq_time_total   UInt64,
+    rq_count        UInt64,
+    blkio_time_total        UInt64,
+    blkio_count             UInt64,
+    uninterruptible_total   UInt64,
+    freepages_time_total    UInt64,
+    freepages_count         UInt64,
+    thrashing_time_total    UInt64,
+    thrashing_count         UInt64,
+    swapin_time_total       UInt64,
+    swapin_count            UInt64
 ) ENGINE = MergeTree
 PARTITION BY machine_id
 ORDER BY ts;
@@ -558,26 +557,26 @@ ENGINE = Distributed(cluster_3s_1r, default, taskstats_local, machine_id);
 
 CREATE TABLE IF NOT EXISTS default.taskstats_queue
 (
-    machine_id      INTEGER,
+    machine_id      UInt32,
     ts              DateTime(3),
-    pid             INTEGER,
-    tid             INTEGER,
+    pid             UInt32,
+    tid             UInt32,
     comm            VARCHAR,
-    nvcsw           BIGINT,
-    nivcsw          BIGINT,
-    run_time_total  BIGINT,
-    rq_time_total   BIGINT,
-    rq_count        BIGINT,
-    blkio_time_total        BIGINT,
-    blkio_count             BIGINT,
-    uninterruptible_total   BIGINT,
-    freepages_time_total    BIGINT,
-    freepages_count         BIGINT,
-    thrashing_time_total    BIGINT,
-    thrashing_count         BIGINT,
-    swapin_time_total       BIGINT,
-    swapin_count            BIGINT
-) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'taskstats', 'clickhouse_taskstats', 'JSONEachRow')
+    nvcsw           UInt64,
+    nivcsw          UInt64,
+    run_time_total  UInt64,
+    rq_time_total   UInt64,
+    rq_count        UInt64,
+    blkio_time_total        UInt64,
+    blkio_count             UInt64,
+    uninterruptible_total   UInt64,
+    freepages_time_total    UInt64,
+    freepages_count         UInt64,
+    thrashing_time_total    UInt64,
+    thrashing_count         UInt64,
+    swapin_time_total       UInt64,
+    swapin_count            UInt64
+) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'taskstats', 'clickhouse_taskstats', 'RowBinary')
 SETTINGS kafka_thread_per_consumer = 0, kafka_num_consumers = 1;
 
 CREATE MATERIALIZED VIEW default.taskstats_mv TO default.taskstats AS
@@ -639,18 +638,18 @@ WHERE time_diff IS NOT NULL;
 -- ================ vfs
 CREATE TABLE IF NOT EXISTS default.vfs_local
 (
-    machine_id  INTEGER,
+    machine_id  UInt32,
     ts_s        DateTime(3),
-    pid         INTEGER,
-    tid         INTEGER,
-    fs_magic    INTEGER,
-    device_id   INTEGER,
-    inode_id    BIGINT,
-    op          INTEGER,
-    total_time  BIGINT,
-    total_requests INTEGER,
-    hist0 INTEGER, hist1 INTEGER, hist2 INTEGER, hist3 INTEGER,
-    hist4 INTEGER, hist5 INTEGER, hist6 INTEGER, hist7 INTEGER
+    pid         UInt32,
+    tid         UInt32,
+    fs_magic    UInt32,
+    device_id   UInt32,
+    inode_id    UInt64,
+    op          UInt8,
+    total_time  UInt64,
+    total_requests UInt32,
+    hist0 UInt32, hist1 UInt32, hist2 UInt32, hist3 UInt32,
+    hist4 UInt32, hist5 UInt32, hist6 UInt32, hist7 UInt32
 ) ENGINE = MergeTree
 PARTITION BY machine_id
 ORDER BY ts_s;
@@ -660,19 +659,19 @@ ENGINE = Distributed(cluster_3s_1r, default, vfs_local, machine_id);
 
 CREATE TABLE IF NOT EXISTS default.vfs_queue
 (
-    machine_id  INTEGER,
+    machine_id  UInt32,
     ts_s        DateTime(3),
-    pid         INTEGER,
-    tid         INTEGER,
-    fs_magic    INTEGER,
-    device_id   INTEGER,
-    inode_id    BIGINT,
-    op          INTEGER,
-    total_time  BIGINT,
-    total_requests INTEGER,
-    hist0 INTEGER, hist1 INTEGER, hist2 INTEGER, hist3 INTEGER,
-    hist4 INTEGER, hist5 INTEGER, hist6 INTEGER, hist7 INTEGER
-) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'vfs', 'clickhouse_vfs', 'JSONEachRow')
+    pid         UInt32,
+    tid         UInt32,
+    fs_magic    UInt32,
+    device_id   UInt32,
+    inode_id    UInt64,
+    op          UInt8,
+    total_time  UInt64,
+    total_requests UInt32,
+    hist0 UInt32, hist1 UInt32, hist2 UInt32, hist3 UInt32,
+    hist4 UInt32, hist5 UInt32, hist6 UInt32, hist7 UInt32
+) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'vfs', 'clickhouse_vfs', 'RowBinary')
 SETTINGS kafka_thread_per_consumer = 0, kafka_num_consumers = 1;
 
 CREATE MATERIALIZED VIEW default.vfs_mv TO default.vfs AS
@@ -687,7 +686,7 @@ CREATE TABLE IF NOT EXISTS default.linux_consts_local
 (
     const_type  VARCHAR,
     const_name  VARCHAR,
-    `value`       INTEGER
+    `value`     UInt32,
 ) ENGINE = MergeTree
 ORDER BY (const_type, const_name);
 
@@ -698,11 +697,12 @@ CREATE TABLE IF NOT EXISTS default.linux_consts_queue
 (
     const_type  VARCHAR,
     const_name  VARCHAR,
-    `value`     INTEGER
-) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'linux_consts', 'clickhouse_linux_consts', 'JSONEachRow')
+    `value`     UInt32,
+) ENGINE = Kafka('broker1:9092,broker2:9092,broker3:9092', 'linux_consts', 'clickhouse_linux_consts', 'RowBinary')
 SETTINGS kafka_thread_per_consumer = 0, kafka_num_consumers = 1;
 
 CREATE MATERIALIZED VIEW default.linux_consts_mv TO default.linux_consts AS
 SELECT * FROM default.linux_consts_queue;
+
 
 
