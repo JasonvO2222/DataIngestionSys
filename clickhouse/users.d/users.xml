@@ -10,19 +10,11 @@
     <cluster_user>
       <password>cluster_pass</password>
       <networks>
-        <ip>172.18.0.0/16</ip>
+        <ip>::/0</ip>
       </networks>
       <profile>default</profile>
       <quota>default</quota>
     </cluster_user>
-    <executioner>
-      <password>execute</password>
-      <networks>
-        <ip>172.18.0.0/16</ip>
-      </networks>
-      <profile>default</profile>
-      <quota>default</quota>
-    </executioner>
     <defaultuser>
       <password>passphrase</password>
       <networks>
