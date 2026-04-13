@@ -1,1 +1,3 @@
-Has persistent three node kafka cluster
+This repository contains the containerized storage pipeline proposed as a scalable storage solution for PRISM.
+It consists of three containerized Kafka brokers, and three containerized Clickhouse servers.
+Find the repository for PRISM here: https://github.com/landaudiogo/jason
